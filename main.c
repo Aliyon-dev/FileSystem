@@ -1,47 +1,64 @@
 #include <stdio.h>
-
-#define MAX_BLOCKS 1024
-#define MAX_INODES 256
-#define BLOCK_SIZE 4096
-#define FILE_NAME_LENGTH 255
+#include <string.h>
 
 
+
+
+
+// THE FILE DIRECTORY AND ITS METHODS  //
 typedef struct{
-    int total_blocks;
-    int free_blocks;
-    int block_size;
-    int inode_count;
-    int free_inodes;
-}superblock;
-
-
-typedef struct{
-    int inode_id;
-    int file_size;
-    char file_type;
-    int permissions;
-    int owner;
-    int timestamps[3];
-    int data_blocks[12];
-
-}inode;
-
-
-typedef struct{
-    char name[FILE_NAME_LENGTH];
-    int inode_number;
-}DirectoryEntry;
-
-
-typedef struct{
-    int inode_number;
-    DirectoryEntry entries[MAX_INODES]
+    char name[100];
+    struct Directory* parent;
+    char subitems[100][100];
+    int subitem_types[100];
+    int subitem_count;
 }Directory;
 
+Directory* create_root_dir(){
+    Directory* root = (Directory*)malloc(sizeof(Directory));
+    strcpy(root -> name, "root");
+    root->subitem_count = 0;
+    return root;
+}
+
+Directory* create_dir(const char* dir_name, Directory* root){
+    //check if the folder already exist
+    for(int i =0; i<root->subitem_count; i++){
+        if(strcmp(root->subitems[i], dir_name)==0){
+            printf("directory name already exist");
+            return -1;
+        }
+    }
+    /// we check if the subitem count is full
+    if(root->subitem_count>=100){
+        printf("root directory is full");
+        return -2;
+    }
+    // we now create the directory
+    Directory* dir = (Directory*)malloc(sizeof(Directory));
+    strcpy(dir->name, dir_name);
+    dir->parent = root;
+    // add it to the current directory
+    strcpy(root->subitems[root->subitem_count], dir_name);
+    root->subitem_types[root->subitem_count] = 1; // Directory type
+    root->subitem_count++;
+
+    return dir;
+}
+
+Directory* delete_dir(){};
+Directory* change_dir(){};
 
 
+//  END OF DIRECTORY AND ITS METHODS   //
 
-int main() {
 
-return 0;  
+int main(){
+    Directory* root = create_root_dir();
+    Directory* my_dir = create_dir("pics", root);
+
+    printf(my_dir);
+
+
+    return 0;
 }
